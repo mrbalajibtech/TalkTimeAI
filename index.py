@@ -43,4 +43,3 @@ def send_message():
     response = chat_session.send_message(user_input)
 
     return jsonify({"response": response.text})
-
