@@ -7,58 +7,73 @@
     <title>OpenAI ChatBot</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <style>
-        /* Change body background to black */
         body {
-            background-color: black;
+            background-color: #000;
             color: white;
             height: 100vh;
             margin: 0;
             display: flex;
             flex-direction: column;
+            font-family: 'Segoe UI', sans-serif;
         }
 
-        /* Styling for chatbox */
         .chat-box {
             border: 2px solid #007bff;
-            border-radius: 10px;
+            border-radius: 12px;
             flex: 1;
             overflow-y: auto;
-            overflow-x: hidden; /* Hide horizontal scrollbar */
-            padding: 10px;
-            background-color: #f8f9fa;
+            overflow-x: hidden;
+            padding: 15px;
+            background-color: #1c1c1c;
             color: black;
-            display: none; /* Initially hidden */
-            margin-bottom: 10px;
+            display: none;
+            margin-bottom: 15px;
+            box-shadow: 0 0 15px rgba(0, 123, 255, 0.3);
+            transition: all 0.3s ease;
         }
 
-        /* Styling for user message and bot response */
         .chat-bubble {
-            margin: 10px 0;
-            padding: 10px;
-            border-radius: 10px;
+            margin: 8px 0;
+            padding: 12px 15px;
+            border-radius: 15px;
             display: inline-block;
             max-width: 80%;
+            font-size: 0.95rem;
+            line-height: 1.4;
+            word-wrap: break-word;
+            animation: fadeIn 0.3s ease-in-out;
         }
 
-        /* User bubble (left side) */
         .user-bubble {
-            background-color: #007bff;
+            background: linear-gradient(135deg, #007bff, #0056b3);
             color: white;
             align-self: flex-start;
             float: left;
             clear: both;
+            box-shadow: 0 2px 6px rgba(0, 123, 255, 0.4);
         }
 
-        /* Bot bubble (right side) */
         .bot-bubble {
             background-color: #e9ecef;
             color: black;
             align-self: flex-end;
             float: right;
             clear: both;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
         }
 
-        /* Scrollbar styling */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
         .chat-box::-webkit-scrollbar {
             width: 8px;
         }
@@ -68,77 +83,82 @@
             border-radius: 4px;
         }
 
-        /* Clear float after each message */
-        .chat-box::after {
-            content: "";
-            display: table;
-            clear: both;
-        }
-
-        /* Media queries for responsiveness */
-        @media only screen and (max-width: 600px) {
-            .chat-bubble {
-                max-width: 90%;
-            }
-
-            #userInput {
-                min-height: 60px;
-            }
-        }
-
-        /* Styling for text area */
         #userInput {
-            resize: none; /* Prevent resizing */
-            min-height: 80px; /* Set minimum height */
+            resize: none;
+            min-height: 70px;
+            background-color: #121212;
+            border: 1px solid #007bff;
+            color: white;
+            border-radius: 8px;
+            padding: 10px;
+            box-shadow: inset 0 0 6px rgba(0, 123, 255, 0.2);
         }
 
-        /* Styling for voice button */
+        #userInput::placeholder {
+            color: #aaa;
+        }
+
         #voiceButton {
             background-color: #28a745;
             color: white;
             border: none;
-            border-radius: 5px;
-            padding: 10px;
+            border-radius: 8px;
+            padding: 10px 12px;
             cursor: pointer;
+            margin-left: 8px;
+            transition: all 0.2s ease-in-out;
         }
 
         #voiceButton:hover {
             background-color: #218838;
+            transform: scale(1.05);
         }
 
-        /* Styling for container and form-group */
-        .container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
+        .btn-primary {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            border: none;
+            padding: 12px;
+            font-size: 1rem;
+            border-radius: 8px;
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
         }
 
-        .form-group {
-            margin-bottom: 0;
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #0056b3, #00408a);
+            transform: translateY(-2px);
+        }
+
+        @media only screen and (max-width: 600px) {
+            .chat-bubble {
+                max-width: 90%;
+                font-size: 0.9rem;
+            }
+
+            #userInput {
+                min-height: 60px;
+                font-size: 0.9rem;
+            }
         }
     </style>
 </head>
 
 <body>
-    <div class="container mt-2">
+    <div class="container mt-3">
         <div class="row justify-content-center flex-grow-1">
             <div class="col-md-8 col-lg-6">
 
-                <!-- Chat box to display conversation above the search bar -->
-                <div class="chat-box mb-4" id="responseContainer">
-                    <!-- Dynamic messages will be appended here -->
-                </div>
+                <div class="chat-box mb-4" id="responseContainer"></div>
 
-                <!-- Search bar and voice button below chat box -->
                 <div class="form-group">
-                    <label for="userInput">Ask anything you want...</label>
+                    <label for="userInput" class="mb-2 font-weight-bold">Ask anything you want...</label>
                     <div class="d-flex">
-                        <textarea class="form-control" id="userInput" rows="3" placeholder="Enter your request..."></textarea>
+                        <textarea class="form-control" id="userInput" rows="3"
+                            placeholder="Type your message..."></textarea>
                         <button id="voiceButton" onclick="startVoiceRecognition()">🎤</button>
                     </div>
                 </div>
-                
-                <!-- Submit button under search bar -->
+
                 <div class="d-flex justify-content-center mb-4">
                     <button class="btn btn-primary btn-block w-100" onclick="sendRequest()">Send</button>
                 </div>
@@ -148,74 +168,50 @@
     </div>
 
     <script>
-        // Function to start voice recognition
         function startVoiceRecognition() {
             if (!('webkitSpeechRecognition' in window)) {
                 alert("Sorry, your browser does not support speech recognition.");
                 return;
             }
-
             const recognition = new webkitSpeechRecognition();
-            recognition.lang = 'en-US'; // Set language
-            recognition.interimResults = false; // Set to true if you want interim results
+            recognition.lang = 'en-US';
+            recognition.interimResults = false;
             recognition.maxAlternatives = 1;
-
             recognition.start();
-
-            recognition.onresult = function(event) {
+            recognition.onresult = function (event) {
                 const transcript = event.results[0][0].transcript;
                 document.getElementById("userInput").value = transcript;
             };
-
-            recognition.onerror = function(event) {
+            recognition.onerror = function (event) {
                 console.error("Speech recognition error", event.error);
-            };
-
-            recognition.onend = function() {
-                console.log("Speech recognition service disconnected");
             };
         }
 
         async function sendRequest() {
             const userInput = document.getElementById("userInput").value;
-            
             if (userInput.trim() === '') {
                 alert("Please enter a message!");
                 return;
             }
-
-            // Show the chat box if it is not already visible
             document.getElementById("responseContainer").style.display = 'block';
-
-            // Append user's message in the chat box (left side)
             appendMessage(userInput, 'user-bubble');
-
             const response = await fetch("/send-message", {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ message: userInput }),
             });
-
             const data = await response.json();
-
-            // Append AI response in the chat box (right side) in normal format
             appendMessage(data.response, 'bot-bubble');
-
-            // Clear input field
             document.getElementById("userInput").value = '';
         }
 
-        // Function to append messages to the chat box
         function appendMessage(message, className) {
             const responseContainer = document.getElementById("responseContainer");
             const messageElement = document.createElement("div");
             messageElement.classList.add("chat-bubble", className);
-            messageElement.innerText = message; // Use innerText to display plain text
-
+            messageElement.innerText = message;
             responseContainer.appendChild(messageElement);
-            responseContainer.scrollTop = responseContainer.scrollHeight; // Auto-scroll to the bottom
+            responseContainer.scrollTop = responseContainer.scrollHeight;
         }
     </script>
 </body>
